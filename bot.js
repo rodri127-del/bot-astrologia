@@ -24,30 +24,38 @@ const hoy = dias[new Date().getDay()];
 
 // === PROMPT DINÁMICO ===
 function obtenerPrompt() {
-  const base = `Hoy es ${hoy}. Eres un experto en esoterismo y comunicación en redes. `;
+  const base = `Hoy es ${hoy}. Eres un experto en esoterismo y comunicación en redes. Escribe un hilo claro, emocional y natural, listo para publicar en X. No uses asteriscos, negritas ni markdown. Máximo 260 caracteres por tweet.\n\n`;
   
   if (hoy === 'Lunes') {
-    return base + `Escribe un horóscopo diario para los 12 signos del zodíaco. Un tweet por signo. Máximo 260 caracteres por tweet. Tonos: místico, empoderador, claro. Incluye emojis. No uses negritas ni markdown.`;
+    return base + `Escribe un horóscopo diario para los 12 signos del zodíaco. Un tweet por signo. Usa un tono místico y empoderador. Incluye emojis. Ejemplo: "♈ ARIES\nHoy el fuego interno te impulsa a actuar. Ideal para empezar algo nuevo."`;
   }
+  
   if (hoy === 'Martes') {
-    return base + `Hoy es día de numerología. Escribe un hilo de 5 tweets sobre el número del día: qué significa, cómo afecta, ejemplos. Máximo 260 caracteres por tweet.`;
+    return base + `Hoy es día de numerología. Escribe un hilo de 5 tweets sobre el número del día: qué significa, cómo afecta, ejemplos. Tonos: profundo, práctico. Ejemplo: "🔢 Hoy el número 7 domina la energía. Es momento de introspección y búsqueda de respuestas."`;
   }
+  
   if (hoy === 'Miércoles') {
-    return base + `Hoy es día de Kabbalah. Escribe un hilo de 3 tweets sobre la letra hebrea del día: su vibración, significado espiritual, cómo aplicarla. Máximo 260 caracteres.`;
+    return base + `Hoy es día de Kabbalah. Escribe un hilo de 3 tweets sobre la letra hebrea del día: su vibración, significado espiritual, cómo aplicarla. Ejemplo: "🪄 Hoy la letra "ג" (Guimel) está activa. Simboliza el avance y la recompensa silenciosa."`;
   }
+  
   if (hoy === 'Jueves') {
-    return base + `Hoy es día del Nombre. Escribe un hilo de 4 tweets: cómo el nombre influye en el destino, cómo calcular la vibración, ejemplo práctico. Máximo 260 caracteres.`;
+    return base + `Hoy es día del Nombre. Escribe un hilo de 4 tweets: cómo el nombre influye en el destino, cómo calcular la vibración, ejemplo práctico. Ejemplo: "Tu nombre no es casualidad. Cada letra vibra y atrae una energía específica. Hoy, la 'M' activa el poder creativo."`;
   }
+  
   if (hoy === 'Viernes') {
-    return base + `Hoy es consejo astrológico. Escribe un hilo de 3 tweets con un consejo profundo basado en la energía cósmica actual. Puede ser sobre relaciones, dinero o propósito. Máximo 260 caracteres.`;
+    return base + `Hoy es consejo astrológico. Escribe un hilo de 3 tweets con un consejo profundo basado en la energía cósmica actual. Puede ser sobre relaciones, dinero o propósito. Ejemplo: "✨ Hoy el cosmos te dice: no fuerces. Confía. Tu momento llegará cuando dejes de buscarlo."`;
   }
+  
   if (hoy === 'Sábado') {
-    return base + `Hoy es test rápido. Escribe un hilo de 4 tweets: pregunta 3 cosas al usuario (ej: fecha nacimiento, inicial nombre) y al final dile su "número de poder". Que sea interactivo y mágico. Máximo 260 caracteres.`;
+    return base + `Hoy es test rápido. Escribe un hilo de 4 tweets: pregunta 3 cosas al usuario (ej: fecha nacimiento, inicial nombre) y al final dile su "número de poder". Que sea interactivo y mágico. Ejemplo: "¿Naciste en año par o impar? ¿Tu nombre empieza con vocal o consonante? Responde y te digo tu número de poder."`;
   }
+  
   if (hoy === 'Domingo') {
-    return base + `Hoy es testimonio. Escribe un hilo de 4 tweets como si fuera un cliente real: "Recibí mi carta numerológica y cambié mi trabajo". Que inspire y invite a comprar. Máximo 260 caracteres.`;
+    return base + `Hoy es testimonio. Escribe un hilo de 4 tweets como si fuera un cliente real que recibió su carta de @ElOraculoDiario. Usa un tono emocional y realista. Ejemplo: "Hoy recibí mi carta numerológica de @ElOraculoDiario y fue un antes y un después. Descubrí que mi número de vida es el 7, y todo encajó."`;
   }
-  return base + `Escribe un mensaje sobre autoconocimiento espiritual, 3 tweets.`;
+  
+  // Por defecto
+  return base + `Escribe un mensaje sobre autoconocimiento espiritual, 3 tweets, tono cálido y profundo.`;
 }
 
 // === LLAMADA A GEMINI ===
