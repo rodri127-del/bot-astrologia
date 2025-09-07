@@ -66,7 +66,10 @@ async function generarContenido() {
   });
 
   const data = await res.json();
-  if (data.error) throw new Error(data.error.message);
+  if (data.error) {
+    console.error('❌ Gemini error:', data.error);
+    throw new Error(`Gemini API error: ${data.error.message}`);
+  }
   
   return data.candidates[0].content.parts[0].text;
 }
