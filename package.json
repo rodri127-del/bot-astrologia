@@ -1,0 +1,14 @@
+{
+  "type": "module",
+  "name": "bot-astrologia",
+  "version": "1.0.0",
+  "description": "Bot de astrología y numerología diaria",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js"
+  },
+  "dependencies": {
+    "twitter-api-v2": "^1.20.0",
+    "node-fetch": "^3.3.2"
+  }
+}
