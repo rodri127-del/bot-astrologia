@@ -53,7 +53,7 @@ function obtenerPrompt() {
 // === LLAMADA A GEMINI ===
 async function generarContenido() {
   const prompt = obtenerPrompt();
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=${GEMINI_API_KEY}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
   
   const body = {
   contents: [
