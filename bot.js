@@ -22,40 +22,63 @@ const twitterRW = twitterClient.readWrite;
 const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 const hoy = dias[new Date().getDay()];
 
-// === PROMPT DINÁMICO ===
+// === PROMPT DINÁMICO OPTIMIZADO ===
 function obtenerPrompt() {
-  const base = `Hoy es ${hoy}. Eres un experto en esoterismo y comunicación en redes. Escribe un hilo claro, emocional y natural, listo para publicar en X. No uses asteriscos, negritas ni markdown. Máximo 260 caracteres por tweet.\n\n`;
+  const base = `Eres El Oráculo Diario, experto en numerología práctica. Crea contenido VIRAL que convierta seguidores en clientes. Resuelve problemas reales y al final menciona la carta numerológica. Tono natural, cercano, práctico. Máximo 260 caracteres por tweet. No uses asteriscos, negritas ni markdown.\n\n`;
   
-  if (hoy === 'Lunes') {
-    return base + `Escribe un horóscopo diario para los 12 signos del zodíaco. Un tweet por signo. Usa un tono místico y empoderador. Incluye emojis. Ejemplo: "♈ ARIES\nHoy el fuego interno te impulsa a actuar. Ideal para empezar algo nuevo."`;
-  }
-  
-  if (hoy === 'Martes') {
-    return base + `Hoy es día de numerología. Escribe un hilo de 5 tweets sobre el número del día: qué significa, cómo afecta, ejemplos. Tonos: profundo, práctico. Ejemplo: "🔢 Hoy el número 7 domina la energía. Es momento de introspección y búsqueda de respuestas."`;
-  }
-  
-  if (hoy === 'Miércoles') {
-    return base + `Hoy es día de Kabbalah. Escribe un hilo de 3 tweets sobre la letra hebrea del día: su vibración, significado espiritual, cómo aplicarla. Ejemplo: "🪄 Hoy la letra "ג" (Guimel) está activa. Simboliza el avance y la recompensa silenciosa."`;
-  }
-  
-  if (hoy === 'Jueves') {
-    return base + `Hoy es día del Nombre. Escribe un hilo de 4 tweets: cómo el nombre influye en el destino, cómo calcular la vibración, ejemplo práctico. Ejemplo: "Tu nombre no es casualidad. Cada letra vibra y atrae una energía específica. Hoy, la 'M' activa el poder creativo."`;
-  }
-  
-  if (hoy === 'Viernes') {
-    return base + `Hoy es consejo astrológico. Escribe un hilo de 3 tweets con un consejo profundo basado en la energía cósmica actual. Puede ser sobre relaciones, dinero o propósito. Ejemplo: "✨ Hoy el cosmos te dice: no fuerces. Confía. Tu momento llegará cuando dejes de buscarlo."`;
-  }
-  
-  if (hoy === 'Sábado') {
-    return base + `Hoy es test rápido. Escribe un hilo de 4 tweets: pregunta 3 cosas al usuario (ej: fecha nacimiento, inicial nombre) y al final dile su "número de poder". Que sea interactivo y mágico. Ejemplo: "¿Naciste en año par o impar? ¿Tu nombre empieza con vocal o consonante? Responde y te digo tu número de poder."`;
-  }
-  
-  if (hoy === 'Domingo') {
-    return base + `Hoy es testimonio. Escribe un hilo de 4 tweets como si fuera un cliente real que recibió su carta de @ElOraculoDiario. Usa un tono emocional y realista. Ejemplo: "Hoy recibí mi carta numerológica de @ElOraculoDiario y fue un antes y un después. Descubrí que mi número de vida es el 7, y todo encajó."`;
-  }
-  
-  // Por defecto
-  return base + `Escribe un mensaje sobre autoconocimiento espiritual, 3 tweets, tono cálido y profundo.`;
+  const prompts = [
+    // LUNES - Patrones kármicos
+    `Hilo: "Los patrones kármicos en tu fecha de nacimiento"
+     Tweet 1: Pregunta hook: "¿Siempre tropiezas con la misma piedra en el amor/trabajo?"
+     Tweet 2: Explica que son patrones kármicos según números de nacimiento
+     Tweet 3: Ejemplo concreto: Nacido día 16 (1+6=7) = busca respuestas internas
+     Tweet 4: "Tu carta numerológica muestra TU patrón específico y cómo sanarlo"
+     Incluir CTA natural al final`,
+
+    // MARTES - Propósito de vida  
+    `Hilo: "Tu número de destino y tu misión en la vida"
+     Tweet 1: "Todos tenemos un propósito. Tu fecha nacimiento lo revela"
+     Tweet 2: Cómo calcular número destino (ejemplo simple: día+mes+año)
+     Tweet 3: Ejemplo: Número 11 = maestro espiritual, número 8 = líder empresarial
+     Tweet 4: "¿Listo para descubrir TU misión exacta?" + CTA suave`,
+
+    // MIÉRCOLES - Relaciones y compatibilidad
+    `Hilo: "Tu número personal determina qué parejas atraes"
+     Tweet 1: "¿Atraes siempre el mismo tipo de persona problemática?"
+     Tweet 2: Explica compatibilidad numérica básica
+     Tweet 3: Ejemplo: Número 5 atrae aventureros, número 4 atrae estables
+     Tweet 4: "Descubre tu compatibilidad ideal en tu carta numerológica" + CTA`,
+
+    // JUEVES - Dinero y abundancia
+    `Hilo: "El bloqueo económico oculto en tus números"
+     Tweet 1: "¿El dinero se te escapa? Tu número personal tiene la respuesta"
+     Tweet 2: Conexión números-vibración-abundancia
+     Tweet 3: Ejemplo: Número 3 bloqueado = no monetiza su creatividad
+     Tweet 4: "Tu carta revela TU bloqueo económico y cómo solucionarlo" + CTA`,
+
+    // VIERNES - Caso práctico/interactivo
+    `Hilo interactivo: "Responde y analizo tu energía actual"
+     Tweet 1: Pregunta 1: "¿Naciste día par o impar?"
+     Tweet 2: Pregunta 2: "¿Tu mes nacimiento es <6 o >6?"
+     Tweet 3: Pregunta 3: "¿Prefieres salir o quedarte en casa?"
+     Tweet 4: Análisis breve basado en respuestas + "Para análisis EXACTO, tu carta personalizada..."`,
+
+    // SÁBADO - Salud y energía  
+    `Hilo: "Tu número de vida y tu energía vital"
+     Tweet 1: "Tu energía tiene un ritmo numérico específico"
+     Tweet 2: Cómo tu número afecta tu salud y vitalidad
+     Tweet 3: Ejemplo: Número 1 = energía de liderazgo, necesita movimiento
+     Tweet 4: "Alinea tu vida con tu energía natural" + CTA`,
+
+    // DOMINGO - Testimonio + futuro ecosistema
+    `Hilo: "Cómo María descubrió por qué siempre tenía los mismos problemas"
+     Tweet 1: Presenta problema común (ej: relaciones, trabajo, dinero)
+     Tweet 2: Su carta numerológica reveló el patrón oculto
+     Tweet 3: Cómo aplicó la solución y cambió su vida
+     Tweet 4: "Tu turno. Descubre TU patrón oculto" + CTA`
+  ];
+
+  return base + prompts[new Date().getDay()];
 }
 
 // === LLAMADA A GEMINI ===
@@ -64,15 +87,15 @@ async function generarContenido() {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
   
   const body = {
-  contents: [
-    {
-      role: "user",
-      parts: [
-        { text: prompt }
-      ]
-    }
-  ]
-};
+    contents: [
+      {
+        role: "user",
+        parts: [
+          { text: prompt }
+        ]
+      }
+    ]
+  };
 
   const res = await fetch(url, {
     method: 'POST',
@@ -91,7 +114,7 @@ async function generarContenido() {
 
 // === PUBLICAR EN X ===
 async function publicarHilo(texto) {
-  // Divide por líneas que empiezan con número o emoji (ej: "1.", "♈")
+  // Divide por líneas que empiezan con número o emoji
   const tweets = texto
     .split(/\n+/)
     .map(t => t.trim())
@@ -115,6 +138,24 @@ async function publicarHilo(texto) {
     } catch (err) {
       console.error('❌ Error tweet:', err.message);
     }
+  }
+
+  // AÑADIR TWEET FINAL CON CTA MEJORADO
+  try {
+    const tweetFinal = `✨ ¿Quieres tu análisis COMPLETO y personalizado? 
+Tu Carta Numerológica revela:
+• Tu propósito de alma
+• Tus patrones kármicos 
+• Tu camino de vida exacto
+
+👉 Obténla aquí: eloraculodiario.novaproflow.com
+
+#Numerologia #Propósito #CrecimientoPersonal`;
+
+    await twitterRW.v2.reply(tweetFinal, firstTweet.data.id);
+    console.log('✅ CTA final añadido');
+  } catch (err) {
+    console.error('❌ Error CTA final:', err.message);
   }
 }
 
