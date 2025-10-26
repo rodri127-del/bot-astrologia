@@ -26,59 +26,58 @@ const hoy = dias[new Date().getDay()];
 function obtenerPrompt() {
   const base = `Eres El Oráculo Diario, experto en numerología práctica. Crea contenido VIRAL que convierta seguidores en clientes. Resuelve problemas reales y al final menciona la carta numerológica. Tono natural, cercano, práctico. Máximo 260 caracteres por tweet. No uses asteriscos, negritas ni markdown.\n\n`;
   
+// === CONFIGURACIÓN MEJORADA ===
+const config = {
+  hashtags: ['#Numerologia', '#CartasNumerológicas', '#CrecimientoPersonal', '#Alma'],
+  horarios: ['09:00', '12:00', '18:00', '21:00'], // Mayor frecuencia
+  interaccionesDiarias: 15, // Límite seguro
+  maxSeguimientosDia: 45 // MUY IMPORTANTE
+};
+
+// === PROMPTS MEJORADOS - MÁS VIRALES ===
+function obtenerPromptMejorado() {
   const prompts = [
-    // LUNES - Patrones kármicos
-    `Hilo: "Los patrones kármicos en tu fecha de nacimiento"
-     Tweet 1: Pregunta hook: "¿Siempre tropiezas con la misma piedra en el amor/trabajo?"
-     Tweet 2: Explica que son patrones kármicos según números de nacimiento
-     Tweet 3: Ejemplo concreto: Nacido día 16 (1+6=7) = busca respuestas internas
-     Tweet 4: "Tu carta numerológica muestra TU patrón específico y cómo sanarlo"
-     Incluir CTA natural al final`,
+    // LUNES - Problema/Solución
+    `Hilo VIRAL formato problema/solución:
+     Tweet 1: "¿Sientes que repites los mismos errores? ⚠️ Esto es por qué..."
+     Tweet 2: "Tu fecha nacimiento crea patrones kármicos que determinan tus relaciones, dinero y salud"
+     Tweet 3: "Ejemplo: nacido día 7 = buscador espiritual, si no lo expresa → frustración constante"
+     Tweet 4: "La solución: Identificar TU patrón exacto y reprogramarlo"
+     Tweet 5: CTA: "Mi carta numerológica personalizada revela tu patrón único + solución práctica. 20€. 👇 [LINK]"`,
 
-    // MARTES - Propósito de vida  
-    `Hilo: "Tu número de destino y tu misión en la vida"
-     Tweet 1: "Todos tenemos un propósito. Tu fecha nacimiento lo revela"
-     Tweet 2: Cómo calcular número destino (ejemplo simple: día+mes+año)
-     Tweet 3: Ejemplo: Número 11 = maestro espiritual, número 8 = líder empresarial
-     Tweet 4: "¿Listo para descubrir TU misión exacta?" + CTA suave`,
+    // MARTES - Caso de éxito
+    `Hilo formato caso éxito:
+     Tweet 1: "María siempre atraía parejas emocionalmente no disponibles ❌"
+     Tweet 2: "Su carta reveló: número kármico 16 → tendencia a rescatar a otros"
+     Tweet 3: "Al aplicar las recomendaciones específicas de su carta..."
+     Tweet 4: "¡En 3 meses conoció a su actual pareja! ✅"
+     Tweet 5: CTA: "¿Listo para tu transformación? Pide tu carta: [LINK]"`,
 
-    // MIÉRCOLES - Relaciones y compatibilidad
-    `Hilo: "Tu número personal determina qué parejas atraes"
-     Tweet 1: "¿Atraes siempre el mismo tipo de persona problemática?"
-     Tweet 2: Explica compatibilidad numérica básica
-     Tweet 3: Ejemplo: Número 5 atrae aventureros, número 4 atrae estables
-     Tweet 4: "Descubre tu compatibilidad ideal en tu carta numerológica" + CTA`,
+    // MIÉRCOLES - Pregunta interactiva
+    `Hilo interactivo:
+     Tweet 1: "Responde SÍ o NO: ¿Sientes que no estás viviendo tu propósito real?"
+     Tweet 2: "Esto es porque tu número de destino (calculado con tu fecha nacimiento) no está alineado"
+     Tweet 3: "Ejemplo: Número destino 3 = creador, si trabajas en oficina → infelicidad"
+     Tweet 4: "Tu carta numerológica te dice EXACTAMENTE tu propósito y cómo alcanzarlo"
+     Tweet 5: CTA: "Descúbrelo aquí: [LINK] + 👇 Comenta 'SÍ' y te ayudo gratis"`,
 
-    // JUEVES - Dinero y abundancia
-    `Hilo: "El bloqueo económico oculto en tus números"
-     Tweet 1: "¿El dinero se te escapa? Tu número personal tiene la respuesta"
-     Tweet 2: Conexión números-vibración-abundancia
-     Tweet 3: Ejemplo: Número 3 bloqueado = no monetiza su creatividad
-     Tweet 4: "Tu carta revela TU bloqueo económico y cómo solucionarlo" + CTA`,
+    // JUEVES - Urgencia
+    `Hilo con urgencia:
+     Tweet 1: "ATENCIÓN: Estos 3 números en tu carta indican bloqueos económicos 🚨"
+     Tweet 2: "Número 4 mal aspectado = dificultad para mantener empleo"
+     Tweet 3: "Número 8 débil = dinero que se escapa"
+     Tweet 4: "Número 2 en conflicto = no pides aumento por miedo"
+     Tweet 5: CTA: "¡Solo 5 cartas disponibles esta semana! Reserva ahora: [LINK]"`,
 
-    // VIERNES - Caso práctico/interactivo
-    `Hilo interactivo: "Responde y analizo tu energía actual"
-     Tweet 1: Pregunta 1: "¿Naciste día par o impar?"
-     Tweet 2: Pregunta 2: "¿Tu mes nacimiento es <6 o >6?"
-     Tweet 3: Pregunta 3: "¿Prefieres salir o quedarte en casa?"
-     Tweet 4: Análisis breve basado en respuestas + "Para análisis EXACTO, tu carta personalizada..."`,
-
-    // SÁBADO - Salud y energía  
-    `Hilo: "Tu número de vida y tu energía vital"
-     Tweet 1: "Tu energía tiene un ritmo numérico específico"
-     Tweet 2: Cómo tu número afecta tu salud y vitalidad
-     Tweet 3: Ejemplo: Número 1 = energía de liderazgo, necesita movimiento
-     Tweet 4: "Alinea tu vida con tu energía natural" + CTA`,
-
-    // DOMINGO - Testimonio + futuro ecosistema
-    `Hilo: "Cómo María descubrió por qué siempre tenía los mismos problemas"
-     Tweet 1: Presenta problema común (ej: relaciones, trabajo, dinero)
-     Tweet 2: Su carta numerológica reveló el patrón oculto
-     Tweet 3: Cómo aplicó la solución y cambió su vida
-     Tweet 4: "Tu turno. Descubre TU patrón oculto" + CTA`
+    // VIERNES - Testimonio visual
+    `Hilo testimonial:
+     Tweet 1: "Carlos pasó de ganar 1.200€ a 3.500€/mes después de su carta 📈"
+     Tweet 2: "Su carta reveló: número 8 de abundancia bloqueado por creencia familiar"
+     Tweet 3: "Al aplicar la técnica específica para su número..."
+     Tweet 4: "¡Consiguió aumento + empezó side business exitoso!"
+     Tweet 5: CTA: "Transforma tu realidad. Tu carta personalizada: [LINK]"`
   ];
-
-  return base + prompts[new Date().getDay()];
+  return prompts[new Date().getDay()];
 }
 
 // === LLAMADA A GEMINI ===
