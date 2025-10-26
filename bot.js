@@ -170,6 +170,30 @@ async function main() {
     console.error('❌ Error:', err);
     process.exit(1);
   }
+  // INTERACCIÓN SEGURA - Ejecutar 2 veces/día
+async function interaccionSegura() {
+  const query = 'numerología OR "propósito de vida" OR "bloqueos" -filter:retweets';
+  const tweets = await twitterRW.v2.search(query, {
+    max_results: 10,
+    'tweet.fields': 'public_metrics'
+  });
+  
+  for (const tweet of tweets.data) {
+    if (tweet.public_metrics.like_count > 5) {
+      // Like + comentario de valor
+      await twitterRW.v2.like('TU_USER_ID', tweet.id);
+      const respuestasValiosas = [
+        `Interesante perspectiva sobre numerología. El número ${Math.floor(Math.random()*9)+1} influye mucho en esto.`,
+        `Como experto en numerología, añadiría que la fecha nacimiento determina...`,
+        `¡Buen punto! En mi experiencia con cartas numerológicas, he visto que...`
+      ];
+      const respuesta = respuestasValiosas[Math.floor(Math.random()*respuestasValiosas.length)];
+      await twitterRW.v2.reply(respuesta, tweet.id);
+      
+      await new Promise(resolve => setTimeout(resolve, 120000)); // 2 minutos entre acciones
+    }
+  }
+}
 }
 
 main();
