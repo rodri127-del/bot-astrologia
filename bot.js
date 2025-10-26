@@ -22,20 +22,16 @@ const twitterRW = twitterClient.readWrite;
 const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 const hoy = dias[new Date().getDay()];
 
-// === PROMPT DINÁMICO OPTIMIZADO ===
-function obtenerPrompt() {
-  const base = `Eres El Oráculo Diario, experto en numerología práctica. Crea contenido VIRAL que convierta seguidores en clientes. Resuelve problemas reales y al final menciona la carta numerológica. Tono natural, cercano, práctico. Máximo 260 caracteres por tweet. No uses asteriscos, negritas ni markdown.\n\n`;
-  
 // === CONFIGURACIÓN MEJORADA ===
 const config = {
   hashtags: ['#Numerologia', '#CartasNumerológicas', '#CrecimientoPersonal', '#Alma'],
-  horarios: ['09:00', '12:00', '18:00', '21:00'], // Mayor frecuencia
-  interaccionesDiarias: 15, // Límite seguro
-  maxSeguimientosDia: 45 // MUY IMPORTANTE
+  horarios: ['09:00', '12:00', '18:00', '21:00'],
+  interaccionesDiarias: 15,
+  maxSeguimientosDia: 45
 };
 
 // === PROMPTS MEJORADOS - MÁS VIRALES ===
-function obtenerPromptMejorado() {
+function obtenerPrompt() {
   const prompts = [
     // LUNES - Problema/Solución
     `Hilo VIRAL formato problema/solución:
@@ -75,8 +71,25 @@ function obtenerPromptMejorado() {
      Tweet 2: "Su carta reveló: número 8 de abundancia bloqueado por creencia familiar"
      Tweet 3: "Al aplicar la técnica específica para su número..."
      Tweet 4: "¡Consiguió aumento + empezó side business exitoso!"
-     Tweet 5: CTA: "Transforma tu realidad. Tu carta personalizada: [LINK]"`
+     Tweet 5: CTA: "Transforma tu realidad. Tu carta personalizada: [LINK]"`,
+
+    // SÁBADO - Testimonio espiritual
+    `Hilo testimonial espiritual:
+     Tweet 1: "Ana sentía vacío existencial a pesar de tenerlo todo..."
+     Tweet 2: "Su carta numerológica mostró: alma vieja con misión de servicio"
+     Tweet 3: "Al seguir su camino numérico específico..."
+     Tweet 4: "¡Encontró paz interior y propósito real! 🙏"
+     Tweet 5: CTA: "Encuentra tu paz interior. Tu carta personalizada: [LINK]"`,
+
+    // DOMINGO - Resumen semanal
+    `Hilo resumen:
+     Tweet 1: "Esta semana ayudé a 7 personas a descubrir sus patrones kármicos ✨"
+     Tweet 2: "Problemas comunes: bloqueos económicos, relaciones repetitivas, falta de propósito"
+     Tweet 3: "La solución SIEMPRE fue la misma: entender su código numérico personal"
+     Tweet 4: "Tu también puedes transformar tu vida"
+     Tweet 5: CTA: "Empieza tu transformación. Pide tu carta: [LINK]"`
   ];
+  
   return prompts[new Date().getDay()];
 }
 
@@ -90,7 +103,15 @@ async function generarContenido() {
       {
         role: "user",
         parts: [
-          { text: prompt }
+          { 
+            text: `Eres El Oráculo Diario, experto en numerología práctica. Crea contenido VIRAL que convierta seguidores en clientes. 
+Resuelve problemas reales y al final menciona la carta numerológica. Tono natural, cercano, práctico. 
+Máximo 260 caracteres por tweet. No uses asteriscos, negritas ni markdown.
+Siempre incluye [LINK] donde indico para el CTA final.
+
+INSTRUCCIONES:
+${prompt}`
+          }
         ]
       }
     ]
@@ -113,33 +134,47 @@ async function generarContenido() {
 
 // === PUBLICAR EN X ===
 async function publicarHilo(texto) {
-  // Divide por líneas que empiezan con número o emoji
+  console.log('📝 Texto generado por Gemini:', texto);
+  
+  // Divide por líneas que parecen tweets (números, guiones, o texto sustancial)
   const tweets = texto
-    .split(/\n+/)
+    .split(/\n(?=\d+|•|👉|¡|¿|[-—])/)
     .map(t => t.trim())
-    .filter(t => t.length > 10);
+    .filter(t => t.length > 20 && !t.includes('Hilo') && !t.includes('Tweet'));
+
+  console.log(`🔢 Se generaron ${tweets.length} tweets del hilo`);
+
+  if (tweets.length === 0) {
+    throw new Error('No se pudieron extraer tweets del texto generado');
+  }
 
   let firstTweet;
   for (let i = 0; i < tweets.length; i++) {
     const t = tweets[i];
-    // Asegurar que no pase de 280 caracteres
-    const tweet = t.length > 270 ? t.substring(0, 270) + '...' : t;
+    // Limpiar y asegurar que no pase de 280 caracteres
+    const tweet = t.length > 270 ? t.substring(0, 267) + '...' : t;
+    
+    // Reemplazar [LINK] con enlace real en el último tweet
+    const tweetFinal = i === tweets.length - 1 ? 
+      tweet.replace('[LINK]', 'eloraculodiario.novaproflow.com') : 
+      tweet.replace('[LINK]', '');
 
     try {
       if (i === 0) {
-        firstTweet = await twitterRW.v2.tweet(tweet);
-        console.log('✅ Inicio:', tweet);
+        firstTweet = await twitterRW.v2.tweet(tweetFinal);
+        console.log('✅ Tweet 1 publicado:', tweetFinal.substring(0, 50) + '...');
       } else {
-        await twitterRW.v2.reply(tweet, firstTweet.data.id);
-        console.log('✅ Reply:', tweet);
+        await twitterRW.v2.reply(tweetFinal, firstTweet.data.id);
+        console.log(`✅ Tweet ${i + 1} publicado:`, tweetFinal.substring(0, 50) + '...');
       }
-      await new Promise(resolve => setTimeout(resolve, 1000)); // 1s entre tweets
+      await new Promise(resolve => setTimeout(resolve, 2000)); // 2s entre tweets para mayor seguridad
     } catch (err) {
-      console.error('❌ Error tweet:', err.message);
+      console.error('❌ Error publicando tweet:', err.message);
+      throw err;
     }
   }
 
-  // AÑADIR TWEET FINAL CON CTA MEJORADO
+  // AÑADIR TWEET FINAL CON CTA MEJORADO (solo si el hilo no incluyó uno)
   try {
     const tweetFinal = `✨ ¿Quieres tu análisis COMPLETO y personalizado? 
 Tu Carta Numerológica revela:
@@ -156,44 +191,94 @@ Tu Carta Numerológica revela:
   } catch (err) {
     console.error('❌ Error CTA final:', err.message);
   }
+
+  return firstTweet.data.id;
 }
 
-// === EJECUCIÓN ===
+// === INTERACCIÓN SEGURA (OPCIONAL - EJECUTAR POR SEPARADO) ===
+async function interaccionSegura() {
+  console.log('🔍 Iniciando interacción segura...');
+  
+  // NECESITAS REEMPLAZAR 'TU_USER_ID' con tu ID numérico de Twitter
+  const MI_USER_ID = '1964715530348306432'; // Obtén esto de https://tweeterid.com/
+  
+  const query = 'numerología OR "propósito de vida" OR "bloqueos" -filter:retweets';
+  
+  try {
+    const searchResult = await twitterRW.v2.search(query, {
+      max_results: 5, // Reducido para seguridad
+      'tweet.fields': 'public_metrics,author_id'
+    });
+    
+    if (!searchResult.data) {
+      console.log('No se encontraron tweets para interactuar');
+      return;
+    }
+
+    let interacciones = 0;
+    
+    for (const tweet of searchResult.data) {
+      if (interacciones >= config.interaccionesDiarias) break;
+      
+      if (tweet.public_metrics.like_count > 3 && tweet.author_id !== MI_USER_ID) {
+        try {
+          // Like al tweet
+          await twitterRW.v2.like(MI_USER_ID, tweet.id);
+          console.log(`✅ Like dado al tweet: ${tweet.id}`);
+          
+          // Comentario de valor
+          const respuestasValiosas = [
+            `Interesante perspectiva sobre numerología. El número ${Math.floor(Math.random()*9)+1} influye mucho en esto.`,
+            `Como experto en numerología, añadiría que la fecha nacimiento determina patrones únicos.`,
+            `¡Buen punto! En mis cartas numerológicas personalizadas, analizo esto en profundidad.`
+          ];
+          const respuesta = respuestasValiosas[Math.floor(Math.random()*respuestasValiosas.length)];
+          
+          await twitterRW.v2.reply(respuesta, tweet.id);
+          console.log(`✅ Respuesta añadida al tweet: ${tweet.id}`);
+          
+          interacciones++;
+          await new Promise(resolve => setTimeout(resolve, 180000)); // 3 minutos entre acciones
+          
+        } catch (err) {
+          console.error('❌ Error en interacción:', err.message);
+        }
+      }
+    }
+    
+    console.log(`✅ Interacción completada: ${interacciones} interacciones`);
+  } catch (err) {
+    console.error('❌ Error en búsqueda:', err);
+  }
+}
+
+// === EJECUCIÓN PRINCIPAL ===
 async function main() {
   console.log(`📅 Hoy es ${hoy}. Generando contenido...`);
+  
   try {
+    // 1. Generar y publicar contenido principal
     const respuesta = await generarContenido();
-    console.log('🧠 Gemini respondió');
-    await publicarHilo(respuesta);
-    console.log('✅ Publicación completa');
+    console.log('🧠 Gemini respondió correctamente');
+    
+    const tweetId = await publicarHilo(respuesta);
+    console.log('✅ Hilo principal publicado');
+    
+    // 2. Interacción segura (OPCIONAL - descomenta si quieres usarlo)
+    // console.log('🔄 Iniciando interacciones seguras...');
+    // await interaccionSegura();
+    
+    console.log('🎯 Publicación e interacción completadas');
+    
   } catch (err) {
-    console.error('❌ Error:', err);
+    console.error('❌ Error en ejecución principal:', err);
     process.exit(1);
   }
-  // INTERACCIÓN SEGURA - Ejecutar 2 veces/día
-async function interaccionSegura() {
-  const query = 'numerología OR "propósito de vida" OR "bloqueos" -filter:retweets';
-  const tweets = await twitterRW.v2.search(query, {
-    max_results: 10,
-    'tweet.fields': 'public_metrics'
-  });
-  
-  for (const tweet of tweets.data) {
-    if (tweet.public_metrics.like_count > 5) {
-      // Like + comentario de valor
-      await twitterRW.v2.like('TU_USER_ID', tweet.id);
-      const respuestasValiosas = [
-        `Interesante perspectiva sobre numerología. El número ${Math.floor(Math.random()*9)+1} influye mucho en esto.`,
-        `Como experto en numerología, añadiría que la fecha nacimiento determina...`,
-        `¡Buen punto! En mi experiencia con cartas numerológicas, he visto que...`
-      ];
-      const respuesta = respuestasValiosas[Math.floor(Math.random()*respuestasValiosas.length)];
-      await twitterRW.v2.reply(respuesta, tweet.id);
-      
-      await new Promise(resolve => setTimeout(resolve, 120000)); // 2 minutos entre acciones
-    }
-  }
-}
 }
 
-main();
+// Ejecutar solo si es el archivo principal
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main();
+}
+
+export { main, interaccionSegura };
