@@ -1,13 +1,47 @@
-name: Publicar Contenido Diario
+name: Publicar Contenido Diario - 4 Veces
 
 on:
   schedule:
-    - cron: '0 7 * * *'   # 7 AM UTC (ajusta si necesitas otra hora)
+    # Publicación 1: 9:00 AM UTC (11:00 AM España)
+    - cron: '0 9 * * *'
+    # Publicación 2: 12:00 PM UTC (2:00 PM España)  
+    - cron: '0 12 * * *'
+    # Publicación 3: 3:00 PM UTC (5:00 PM España)
+    - cron: '0 15 * * *'
+    # Publicación 4: 6:00 PM UTC (8:00 PM España)
+    - cron: '0 18 * * *'
   workflow_dispatch:
+    inputs:
+      publicacion_numero:
+        description: 'Número de publicación (0-3)'
+        required: true
+        default: '0'
+        type: choice
+        options:
+        - '0'
+        - '1' 
+        - '2'
+        - '3'
 
 jobs:
-  post:
+  publicar:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # Mapeo de horarios a números de publicación
+        include:
+          - cron: '0 9 * * *'
+            pub_num: 0
+          - cron: '0 12 * * *'
+            pub_num: 1
+          - cron: '0 15 * * *' 
+            pub_num: 2
+          - cron: '0 18 * * *'
+            pub_num: 3
+    
+    # Solo ejecutar el job que coincide con el cron actual
+    if: github.event.schedule == matrix.cron || github.event_name == 'workflow_dispatch'
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -18,10 +52,20 @@ jobs:
           node-version: '18'
 
       - name: Install dependencies
-        run: npm install twitter-api-v2 node-fetch dotenv
+        run: npm install twitter-api-v2 node-fetch
 
-      - name: Run bot
-        run: node bot.js
+      - name: Determinar número de publicación
+        id: pub_num
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "PUB_NUM=${{ github.event.inputs.publicacion_numero }}" >> $GITHUB_ENV
+          else
+            echo "PUB_NUM=${{ matrix.pub_num }}" >> $GITHUB_ENV
+          fi
+          echo "Ejecutando publicación número: $PUB_NUM"
+
+      - name: Ejecutar publicación específica
+        run: node bot.js $PUB_NUM
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           TWITTER_APP_KEY: ${{ secrets.TWITTER_APP_KEY }}
