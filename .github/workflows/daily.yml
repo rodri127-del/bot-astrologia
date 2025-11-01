@@ -2,14 +2,10 @@ name: Publicar Contenido Diario - 4 Veces
 
 on:
   schedule:
-    # Publicación 1: 9:00 AM UTC (11:00 AM España)
-    - cron: '0 9 * * *'
-    # Publicación 2: 12:00 PM UTC (2:00 PM España)  
-    - cron: '0 12 * * *'
-    # Publicación 3: 3:00 PM UTC (5:00 PM España)
-    - cron: '0 15 * * *'
-    # Publicación 4: 6:00 PM UTC (8:00 PM España)
-    - cron: '0 18 * * *'
+    - cron: '0 9 * * *'  # 9:00 AM
+    - cron: '0 12 * * *'  # 12:00 PM  
+    - cron: '0 15 * * *'  # 3:00 PM
+    - cron: '0 18 * * *'  # 6:00 PM
   workflow_dispatch:
     inputs:
       publicacion_numero:
@@ -18,30 +14,14 @@ on:
         default: '0'
         type: choice
         options:
-        - '0'
-        - '1' 
-        - '2'
-        - '3'
+          - '0'
+          - '1'
+          - '2'
+          - '3'
 
 jobs:
   publicar:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        # Mapeo de horarios a números de publicación
-        include:
-          - cron: '0 9 * * *'
-            pub_num: 0
-          - cron: '0 12 * * *'
-            pub_num: 1
-          - cron: '0 15 * * *' 
-            pub_num: 2
-          - cron: '0 18 * * *'
-            pub_num: 3
-    
-    # Solo ejecutar el job que coincide con el cron actual
-    if: github.event.schedule == matrix.cron || github.event_name == 'workflow_dispatch'
-    
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -60,9 +40,22 @@ jobs:
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             echo "PUB_NUM=${{ github.event.inputs.publicacion_numero }}" >> $GITHUB_ENV
           else
-            echo "PUB_NUM=${{ matrix.pub_num }}" >> $GITHUB_ENV
+            # Para schedule, determinar por hora UTC
+            HORA_UTC=$(date -u +%H)
+            echo "Hora UTC: $HORA_UTC"
+            if [ "$HORA_UTC" = "09" ]; then
+              echo "PUB_NUM=0" >> $GITHUB_ENV
+            elif [ "$HORA_UTC" = "12" ]; then
+              echo "PUB_NUM=1" >> $GITHUB_ENV
+            elif [ "$HORA_UTC" = "15" ]; then
+              echo "PUB_NUM=2" >> $GITHUB_ENV
+            elif [ "$HORA_UTC" = "18" ]; then
+              echo "PUB_NUM=3" >> $GITHUB_ENV
+            else
+              echo "PUB_NUM=0" >> $GITHUB_ENV
+            fi
           fi
-          echo "Ejecutando publicación número: $PUB_NUM"
+          echo "Número de publicación: $PUB_NUM"
 
       - name: Ejecutar publicación específica
         run: node bot.js $PUB_NUM
