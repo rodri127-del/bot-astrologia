@@ -30,72 +30,89 @@ const config = {
   maxSeguimientosDia: 45
 };
 
-// === PROMPTS MEJORADOS - MÁS VIRALES ===
+// === PROMPTS MEJORADOS - CONVERSIÓN REAL ===
 function obtenerPrompt() {
   const prompts = [
-    // LUNES - Problema/Solución
-    `Hilo VIRAL formato problema/solución:
-     Tweet 1: "¿Sientes que repites los mismos errores? ⚠️ Esto es por qué..."
-     Tweet 2: "Tu fecha nacimiento crea patrones kármicos que determinan tus relaciones, dinero y salud"
-     Tweet 3: "Ejemplo: nacido día 7 = buscador espiritual, si no lo expresa → frustración constante"
-     Tweet 4: "La solución: Identificar TU patrón exacto y reprogramarlo"
-     Tweet 5: CTA: "Mi carta numerológica personalizada revela tu patrón único + solución práctica. 20€. 👇 [LINK]"`,
+    // LUNES - Storytelling con transformación
+    `Hilo VIRAL con storytelling:
+     Tweet 1: "¿Sientes que el dinero se te escapa como el agua? Yo estaba igual hasta que descubrí esto..."
+     Tweet 2: "Mi número kármico 8 estaba bloqueado. Ganaba 1.200€ y vivía con ansiedad constante"
+     Tweet 3: "Al aplicar la técnica específica para mi número, en 3 meses mis ingresos se triplicaron"
+     Tweet 4: "La clave estaba en identificar MI patrón exacto y reprogramarlo"
+     Tweet 5: CTA: "¿Quieres saber QUÉ número te bloquea a TI? Te ayudo gratis ↓ [LINK]"`,
 
-    // MARTES - Caso de éxito
-    `Hilo formato caso éxito:
-     Tweet 1: "María siempre atraía parejas emocionalmente no disponibles ❌"
-     Tweet 2: "Su carta reveló: número kármico 16 → tendencia a rescatar a otros"
-     Tweet 3: "Al aplicar las recomendaciones específicas de su carta..."
-     Tweet 4: "¡En 3 meses conoció a su actual pareja! ✅"
-     Tweet 5: CTA: "¿Listo para tu transformación? Pide tu carta: [LINK]"`,
+    // MARTES - Caso real con datos específicos
+    `Hilo caso REAL con datos:
+     Tweet 1: "Mi cliente Javier pasó de 0 entrevistas a 3 ofertas en 1 mes ¿Cómo?"
+     Tweet 2: "Su carta reveló número 4 bloqueado = patrón de auto-sabotaje laboral"
+     Tweet 3: "Aplicamos la técnica de alineación numérica específica para su caso"
+     Tweet 4: "Resultado: 2ª entrevista → contrato indefinido + 30% más sueldo"
+     Tweet 5: CTA: "Comenta 'SÍ' y te digo qué número revisar primero + [LINK]"`,
 
-    // MIÉRCOLES - Pregunta interactiva
-    `Hilo interactivo:
-     Tweet 1: "Responde SÍ o NO: ¿Sientes que no estás viviendo tu propósito real?"
-     Tweet 2: "Esto es porque tu número de destino (calculado con tu fecha nacimiento) no está alineado"
-     Tweet 3: "Ejemplo: Número destino 3 = creador, si trabajas en oficina → infelicidad"
-     Tweet 4: "Tu carta numerológica te dice EXACTAMENTE tu propósito y cómo alcanzarlo"
-     Tweet 5: CTA: "Descúbrelo aquí: [LINK] + 👇 Comenta 'SÍ' y te ayudo gratis"`,
+    // MIÉRCOLES - Pregunta que genera comunidad
+    `Hilo comunitario:
+     Tweet 1: "¿En qué área sientes más bloqueos? 👇"
+     Tweet 2: "1️⃣ Dinero - 2️⃣ Amor - 3️⃣ Trabajo - 4️⃣ Propósito"
+     Tweet 3: "Cada área tiene un número específico que la rige. Ejemplo: área dinero = número 8"
+     Tweet 4: "Cuando identificas TU número bloqueado, puedes liberar esa área"
+     Tweet 5: CTA: "Los primeros 5 en comentar su área reciben mini-análisis gratis + [LINK]"`,
 
-    // JUEVES - Urgencia
-    `Hilo con urgencia:
-     Tweet 1: "ATENCIÓN: Estos 3 números en tu carta indican bloqueos económicos 🚨"
-     Tweet 2: "Número 4 mal aspectado = dificultad para mantener empleo"
-     Tweet 3: "Número 8 débil = dinero que se escapa"
-     Tweet 4: "Número 2 en conflicto = no pides aumento por miedo"
-     Tweet 5: CTA: "¡Solo 5 cartas disponibles esta semana! Reserva ahora: [LINK]"`,
+    // JUEVES - Contenido de valor + lead magnet
+    `Hilo de VALOR + regalo:
+     Tweet 1: "Te regalo los 3 pasos para identificar tus números clave (sin carta)"
+     Tweet 2: "Paso 1: Calcula tu número de destino (día+mes+año nacimiento)"
+     Tweet 3: "Paso 2: Identifica tu número de personalidad (solo día nacimiento)"
+     Tweet 4: "Paso 3: Busca patrones repetitivos en tu vida"
+     Tweet 5: CTA: "¿Quieres el análisis COMPLETO de tus números? ↓ [LINK]"`,
 
-    // VIERNES - Testimonio visual
-    `Hilo testimonial:
-     Tweet 1: "Carlos pasó de ganar 1.200€ a 3.500€/mes después de su carta 📈"
-     Tweet 2: "Su carta reveló: número 8 de abundancia bloqueado por creencia familiar"
-     Tweet 3: "Al aplicar la técnica específica para su número..."
-     Tweet 4: "¡Consiguió aumento + empezó side business exitoso!"
-     Tweet 5: CTA: "Transforma tu realidad. Tu carta personalizada: [LINK]"`,
+    // VIERNES - Testimonio conversacional
+    `Hilo testimonio conversación:
+     Tweet 1: "María me escribió: 'Siempre atraigo personas que me hacen daño'"
+     Tweet 2: "Su carta mostró: número 6 kármico = tendencia a cuidar demás descuidándose"
+     Tweet 3: "Le enseñé la técnica de protección numérica para su caso específico"
+     Tweet 4: "2 meses después: 'Por primera vez siento que merezco amor sano' 💖"
+     Tweet 5: CTA: "Si sientes lo mismo, te ayudo ↓ [LINK]"`,
 
-    // SÁBADO - Testimonio espiritual
-    `Hilo testimonial espiritual:
-     Tweet 1: "Ana sentía vacío existencial a pesar de tenerlo todo..."
-     Tweet 2: "Su carta numerológica mostró: alma vieja con misión de servicio"
-     Tweet 3: "Al seguir su camino numérico específico..."
-     Tweet 4: "¡Encontró paz interior y propósito real! 🙏"
-     Tweet 5: CTA: "Encuentra tu paz interior. Tu carta personalizada: [LINK]"`,
+    // SÁBADO - Urgencia real (no artificial)
+    `Hilo urgencia REAL:
+     Tweet 1: "Esta semana solo tengo 3 espacios para cartas personalizadas"
+     Tweet 2: "Normalmente cobro 120€, pero para estos 3 espacios: 25€"
+     Tweet 3: "Porque necesito testimonios reales de transformación"
+     Tweet 4: "Incluye: análisis completo + técnicas personalizadas + seguimiento 1 semana"
+     Tweet 5: CTA: "Solo 3 disponibles ↓ [LINK]"`,
 
-    // DOMINGO - Resumen semanal
-    `Hilo resumen:
-     Tweet 1: "Esta semana ayudé a 7 personas a descubrir sus patrones kármicos ✨"
-     Tweet 2: "Problemas comunes: bloqueos económicos, relaciones repetitivas, falta de propósito"
-     Tweet 3: "La solución SIEMPRE fue la misma: entender su código numérico personal"
-     Tweet 4: "Tu también puedes transformar tu vida"
-     Tweet 5: CTA: "Empieza tu transformación. Pide tu carta: [LINK]"`
+    // DOMINGO - Resumen con oferta irresistible
+    `Hilo resumen irresistible:
+     Tweet 1: "Esta semana 5 personas transformaron su vida con su carta"
+     Tweet 2: "De estancadas a: nueva carrera, relación sana, paz interior..."
+     Tweet 3: "¿Qué te impide ser la próxima historia de éxito?"
+     Tweet 4: "Hoy ofrezco 2 cartas COMPLETAS gratis a cambio de testimonio honesto"
+     Tweet 5: CTA: "Primeros 2 en DM con fecha nacimiento ↓ [LINK]"`
   ];
   
   return prompts[new Date().getDay()];
 }
 
+// === PROMPT BASE MEJORADO ===
+const PROMPT_BASE = `Eres El Oráculo Diario, experto en numerología práctica. 
+
+OBJETIVO PRINCIPAL: Generar engagement y conversaciones, NO solo ventas directas.
+
+REGLAS ESTRICTAS:
+1. Tono: Cercano, personal, como amigo que cuenta su experiencia
+2. Siempre incluir storytelling o casos reales
+3. CTAs suaves: "te ayudo", "comenta", "DM" - NO "compra"
+4. Máximo 260 caracteres por tweet
+5. No uses negritas, asteriscos ni markdown
+6. Incluir [LINK] SOLO en el último tweet
+7. Generar CURIOSIDAD, no desesperación
+
+INSTRUCCIONES ESPECÍFICAS:
+`;
+
 // === LLAMADA A GEMINI ===
 async function generarContenido() {
-  const prompt = obtenerPrompt();
+  const promptDia = obtenerPrompt();
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
   
   const body = {
@@ -104,13 +121,7 @@ async function generarContenido() {
         role: "user",
         parts: [
           { 
-            text: `Eres El Oráculo Diario, experto en numerología práctica. Crea contenido VIRAL que convierta seguidores en clientes. 
-Resuelve problemas reales y al final menciona la carta numerológica. Tono natural, cercano, práctico. 
-Máximo 260 caracteres por tweet. No uses asteriscos, negritas ni markdown.
-Siempre incluye [LINK] donde indico para el CTA final.
-
-INSTRUCCIONES:
-${prompt}`
+            text: PROMPT_BASE + promptDia
           }
         ]
       }
@@ -136,7 +147,7 @@ ${prompt}`
 async function publicarHilo(texto) {
   console.log('📝 Texto generado por Gemini:', texto);
   
-  // Divide por líneas que parecen tweets (números, guiones, o texto sustancial)
+  // Divide por líneas que parecen tweets
   const tweets = texto
     .split(/\n(?=\d+|•|👉|¡|¿|[-—])/)
     .map(t => t.trim())
@@ -151,10 +162,9 @@ async function publicarHilo(texto) {
   let firstTweet;
   for (let i = 0; i < tweets.length; i++) {
     const t = tweets[i];
-    // Limpiar y asegurar que no pase de 280 caracteres
     const tweet = t.length > 270 ? t.substring(0, 267) + '...' : t;
     
-    // Reemplazar [LINK] con enlace real en el último tweet
+    // Reemplazar [LINK] con enlace real SOLO en el último tweet
     const tweetFinal = i === tweets.length - 1 ? 
       tweet.replace('[LINK]', 'eloraculodiario.novaproflow.com') : 
       tweet.replace('[LINK]', '');
@@ -167,27 +177,27 @@ async function publicarHilo(texto) {
         await twitterRW.v2.reply(tweetFinal, firstTweet.data.id);
         console.log(`✅ Tweet ${i + 1} publicado:`, tweetFinal.substring(0, 50) + '...');
       }
-      await new Promise(resolve => setTimeout(resolve, 2000)); // 2s entre tweets para mayor seguridad
+      await new Promise(resolve => setTimeout(resolve, 2000));
     } catch (err) {
       console.error('❌ Error publicando tweet:', err.message);
       throw err;
     }
   }
 
-  // AÑADIR TWEET FINAL CON CTA MEJORADO (solo si el hilo no incluyó uno)
+  // AÑADIR TWEET FINAL MEJORADO - MÁS PERSONAL
   try {
-    const tweetFinal = `✨ ¿Quieres tu análisis COMPLETO y personalizado? 
-Tu Carta Numerológica revela:
-• Tu propósito de alma
-• Tus patrones kármicos 
-• Tu camino de vida exacto
+    const tweetFinal = `💫 ¿Te resuena algo de esto? 
 
-👉 Obténla aquí: eloraculodiario.novaproflow.com
+Si sientes que hay patrones que se repiten en tu vida, puedo ayudarte a entender el POR QUÉ y el CÓMO cambiarlo.
 
-#Numerologia #Propósito #CrecimientoPersonal`;
+Tu carta numerológica es el mapa para tu transformación.
+
+👇 Hablamos? eloraculodiario.novaproflow.com
+
+#Numerologia #Transformación`;
 
     await twitterRW.v2.reply(tweetFinal, firstTweet.data.id);
-    console.log('✅ CTA final añadido');
+    console.log('✅ CTA final mejorado añadido');
   } catch (err) {
     console.error('❌ Error CTA final:', err.message);
   }
@@ -195,19 +205,26 @@ Tu Carta Numerológica revela:
   return firstTweet.data.id;
 }
 
-// === INTERACCIÓN SEGURA (OPCIONAL - EJECUTAR POR SEPARADO) ===
+// === INTERACCIÓN MEJORADA ===
 async function interaccionSegura() {
-  console.log('🔍 Iniciando interacción segura...');
+  console.log('🔍 Iniciando interacción estratégica...');
   
-  // NECESITAS REEMPLAZAR 'TU_USER_ID' con tu ID numérico de Twitter
-  const MI_USER_ID = '1964715530348306432'; // Obtén esto de https://tweeterid.com/
+  const MI_USER_ID = '1964715530348306432';
   
-  const query = 'numerología OR "propósito de vida" OR "bloqueos" -filter:retweets';
+  // Búsquedas más específicas para tu nicho
+  const queries = [
+    'bloqueos económicos OR "dinero se escapa" -filter:retweets',
+    'propósito de vida OR "qué hago con mi vida" -filter:retweets', 
+    'patrones repetitivos OR "siempre lo mismo" -filter:retweets',
+    'numerología OR carta numerológica -filter:retweets'
+  ];
+  
+  const query = queries[Math.floor(Math.random() * queries.length)];
   
   try {
     const searchResult = await twitterRW.v2.search(query, {
-      max_results: 5, // Reducido para seguridad
-      'tweet.fields': 'public_metrics,author_id'
+      max_results: 8,
+      'tweet.fields': 'public_metrics,author_id,context_annotations'
     });
     
     if (!searchResult.data) {
@@ -220,25 +237,27 @@ async function interaccionSegura() {
     for (const tweet of searchResult.data) {
       if (interacciones >= config.interaccionesDiarias) break;
       
-      if (tweet.public_metrics.like_count > 3 && tweet.author_id !== MI_USER_ID) {
+      // Solo interactuar con tweets que tengan engagement real
+      if (tweet.public_metrics.like_count > 2 && tweet.author_id !== MI_USER_ID) {
         try {
           // Like al tweet
           await twitterRW.v2.like(MI_USER_ID, tweet.id);
           console.log(`✅ Like dado al tweet: ${tweet.id}`);
           
-          // Comentario de valor
+          // Respuestas más naturales y valiosas
           const respuestasValiosas = [
-            `Interesante perspectiva sobre numerología. El número ${Math.floor(Math.random()*9)+1} influye mucho en esto.`,
-            `Como experto en numerología, añadiría que la fecha nacimiento determina patrones únicos.`,
-            `¡Buen punto! En mis cartas numerológicas personalizadas, analizo esto en profundidad.`
+            `Justo estaba pensando en esto! En numerología, esto suele relacionarse con el número ${Math.floor(Math.random()*9)+1}. ¿Te suena?`,
+            `Interesante reflexión. Desde la perspectiva numerológica, esto tiene mucho que ver con nuestros patrones kármicos.`,
+            `Completamente de acuerdo. He visto este patrón muchas veces en las cartas numerológicas que hago.`,
+            `¿Has observado si esto sigue algún ciclo en tu vida? En numerología podemos identificar esos patrones.`
           ];
-          const respuesta = respuestasValiosas[Math.floor(Math.random()*respuestasValiosas.length)];
           
+          const respuesta = respuestasValiosas[Math.floor(Math.random()*respuestasValiosas.length)];
           await twitterRW.v2.reply(respuesta, tweet.id);
           console.log(`✅ Respuesta añadida al tweet: ${tweet.id}`);
           
           interacciones++;
-          await new Promise(resolve => setTimeout(resolve, 180000)); // 3 minutos entre acciones
+          await new Promise(resolve => setTimeout(resolve, 120000)); // 2 minutos entre acciones
           
         } catch (err) {
           console.error('❌ Error en interacción:', err.message);
@@ -246,7 +265,7 @@ async function interaccionSegura() {
       }
     }
     
-    console.log(`✅ Interacción completada: ${interacciones} interacciones`);
+    console.log(`✅ Interacción estratégica completada: ${interacciones} interacciones`);
   } catch (err) {
     console.error('❌ Error en búsqueda:', err);
   }
@@ -254,19 +273,19 @@ async function interaccionSegura() {
 
 // === EJECUCIÓN PRINCIPAL ===
 async function main() {
-  console.log(`📅 Hoy es ${hoy}. Generando contenido...`);
+  console.log(`📅 Hoy es ${hoy}. Generando contenido conversacional...`);
   
   try {
     // 1. Generar y publicar contenido principal
     const respuesta = await generarContenido();
-    console.log('🧠 Gemini respondió correctamente');
+    console.log('🧠 Gemini respondió con contenido conversacional');
     
     const tweetId = await publicarHilo(respuesta);
-    console.log('✅ Hilo principal publicado');
+    console.log('✅ Hilo conversacional publicado');
     
-    // 2. Interacción segura (OPCIONAL - descomenta si quieres usarlo)
-    // console.log('🔄 Iniciando interacciones seguras...');
-    // await interaccionSegura();
+    // 2. Interacción estratégica (DESCOMENTAR SI QUIERES)
+    console.log('🔄 Iniciando interacciones estratégicas...');
+    await interaccionSegura();
     
     console.log('🎯 Publicación e interacción completadas');
     
