@@ -44,7 +44,7 @@ function obtenerPrompt(numeroPublicacion) {
      Tweet 2: "Tu fecha nacimiento crea patrones kármicos que determinan tus relaciones, dinero y salud"
      Tweet 3: "Ejemplo: nacido día 7 = buscador espiritual, si no lo expresa → frustración constante"
      Tweet 4: "La solución: Identificar TU patrón exacto y reprogramarlo"
-     Tweet 5: CTA: "Mi carta numerológica personalizada revela tu patrón único + solución práctica. 20€. 👇 [LINK]"`,
+     Tweet 5: CTA: "Mi carta numerológica personalizada revela tu patrón único + solución práctica. 25€. 👇 [LINK]"`,
 
     // MARTES - Caso de éxito
     `Hilo formato caso éxito:
