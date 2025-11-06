@@ -1,4 +1,4 @@
-// bot.js - VERSIÓN COMPLETA Y SEGURA (HILOS + RT + REPLIES TIRADA GRATIS)
+// bot.js - VERSIÓN CORREGIDA Y MEJORADA
 import { TwitterApi } from 'twitter-api-v2';
 import fetch from 'node-fetch';
 
@@ -19,15 +19,49 @@ const twitterClient = new TwitterApi({
 const twitterRW = twitterClient.readWrite;
 
 // === CONFIGURACIÓN TIRADA GRATIS ===
-const POST_FIJO_ID = '1986511491785461979'; // ← CAMBIA POR EL ID REAL DE TU POST FIJADO
+const POST_FIJO_ID = '1986511491785461979';
 const TIRADA_URL = 'https://eloraculodiario.novaproflow.com/tirada/';
 const MI_USER_ID = '1964715530348306432';
+
+// === SISTEMA DE ESTADO EN MEMORIA (REEMPLAZA localStorage) ===
+class EstadoDiario {
+  constructor() {
+    this.estado = {
+      rtHecho: false,
+      hilosHechos: false,
+      fechaActual: this.getHoy()
+    };
+  }
+
+  getHoy() {
+    return new Date().toISOString().split('T')[0];
+  }
+
+  verificarYCrearNuevoDia() {
+    const hoy = this.getHoy();
+    if (hoy !== this.estado.fechaActual) {
+      console.log('🔄 NUEVO DÍA - Reiniciando estado...');
+      this.estado = {
+        rtHecho: false,
+        hilosHechos: false,
+        fechaActual: hoy
+      };
+    }
+  }
+
+  getEstado() {
+    this.verificarYCrearNuevoDia();
+    return this.estado;
+  }
+}
+
+const estadoDiario = new EstadoDiario();
 
 // === DÍA DE LA SEMANA ===
 const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 const hoy = dias[new Date().getDay()];
 
-// === CONFIGURACIÓN PARA 4 PUBLICACIONES DIARIAS ===
+// === CONFIGURACIÓN ===
 const config = {
   hashtags: ['#Numerologia', '#CartasNumerológicas', '#CrecimientoPersonal', '#Alma'],
   publicacionesPorDia: 4,
@@ -36,7 +70,7 @@ const config = {
   horarios: ['09:00', '12:00', '15:00', '18:00']
 };
 
-// === PROMPTS MEJORADOS - 4 VARIACIONES POR DÍA ===
+// === PROMPTS MEJORADOS ===
 function obtenerPrompt(numeroPublicacion) {
   const dia = new Date().getDay();
   
@@ -105,13 +139,13 @@ function obtenerPrompt(numeroPublicacion) {
     "\n\nENFÓCATE EN: Dar consejos prácticos y accionables. Que la gente pueda aplicar algo inmediatamente."
   ];
 
-  const promptBase = promptsBase[dia];
+  const promptBase = promptsBase[dia] || promptsBase[0];
   const variacion = variaciones[numeroPublicacion] || variaciones[0];
   
   return promptBase + variacion;
 }
 
-// === PROMPT BASE MEJORADO ===
+// === PROMPT BASE ===
 const PROMPT_BASE = `Eres El Oráculo Diario, experto en numerología práctica. 
 
 OBJETIVO PRINCIPAL: Generar engagement y conversaciones, NO solo ventas directas.
@@ -130,65 +164,86 @@ INSTRUCCIONES ESPECÍFICAS:
 
 // === LLAMADA A GEMINI ===
 async function generarContenido(promptEspecifico) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
-  
-  const body = {
-    contents: [
-      {
-        role: "user",
-        parts: [{ text: PROMPT_BASE + promptEspecifico }]
-      }
-    ]
-  };
+  try {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
+    
+    const body = {
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: PROMPT_BASE + promptEspecifico }]
+        }
+      ]
+    };
 
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
 
-  const data = await res.json();
-  if (data.error) throw new Error(`Gemini API error: ${data.error.message}`);
-  
-  return data.candidates[0].content.parts[0].text;
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+
+    const data = await res.json();
+    if (data.error) {
+      throw new Error(`Gemini API error: ${data.error.message}`);
+    }
+    
+    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+      throw new Error('Respuesta de Gemini incompleta');
+    }
+    
+    return data.candidates[0].content.parts[0].text;
+  } catch (error) {
+    console.error('Error en generarContenido:', error.message);
+    // Contenido de respaldo en caso de error
+    return `Hilo de numerología del día ${hoy}. Descubre tus patrones kármicos y cómo transformarlos. Tu carta numerológica personalizada te espera: [LINK]`;
+  }
 }
 
 // === PUBLICAR HILO ===
 async function publicarHilo(texto) {
-  const tweets = texto
-    .split(/\n(?=\d+|•|👉|¡|¿|[-—])/)
-    .map(t => t.trim())
-    .filter(t => t.length > 20 && !t.includes('Hilo') && !t.includes('Tweet'));
-
-  if (tweets.length === 0) throw new Error('No se pudieron extraer tweets');
-
-  let firstTweet;
-  for (let i = 0; i < tweets.length; i++) {
-    let tweet = tweets[i];
-    if (tweet.length > 270) tweet = tweet.substring(0, 267) + '...';
-    
-    const tweetFinal = i === tweets.length - 1 ? 
-      tweet.replace('[LINK]', 'eloraculodiario.novaproflow.com') : 
-      tweet.replace('[LINK]', '');
-
-    try {
-      if (i === 0) {
-        firstTweet = await twitterRW.v2.tweet(tweetFinal);
-        console.log('Tweet 1 publicado');
-      } else {
-        await twitterRW.v2.reply(tweetFinal, firstTweet.data.id);
-        console.log(`Tweet ${i + 1} publicado`);
-      }
-      await new Promise(resolve => setTimeout(resolve, 2000));
-    } catch (err) {
-      console.error('Error publicando:', err.message);
-      throw err;
-    }
-  }
-
-  // CTA FINAL
   try {
-    const cta = `¿Te resuena algo de esto? 
+    const tweets = texto
+      .split(/\n(?=\d+|•|👉|¡|¿|[-—])/)
+      .map(t => t.trim())
+      .filter(t => t.length > 20 && !t.includes('Hilo') && !t.includes('Tweet'));
+
+    if (tweets.length === 0) {
+      throw new Error('No se pudieron extraer tweets del contenido generado');
+    }
+
+    let firstTweet;
+    for (let i = 0; i < tweets.length; i++) {
+      let tweet = tweets[i];
+      if (tweet.length > 270) {
+        tweet = tweet.substring(0, 267) + '...';
+      }
+      
+      const tweetFinal = i === tweets.length - 1 ? 
+        tweet.replace('[LINK]', 'eloraculodiario.novaproflow.com') : 
+        tweet.replace('[LINK]', '');
+
+      try {
+        if (i === 0) {
+          firstTweet = await twitterRW.v2.tweet(tweetFinal);
+          console.log('✅ Tweet 1 publicado:', tweetFinal.substring(0, 50) + '...');
+        } else {
+          await twitterRW.v2.reply(tweetFinal, firstTweet.data.id);
+          console.log(`✅ Tweet ${i + 1} publicado`);
+        }
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      } catch (err) {
+        console.error('❌ Error publicando tweet:', err.message);
+        throw err;
+      }
+    }
+
+    // CTA FINAL
+    try {
+      const cta = `¿Te resuena algo de esto? 
 
 Si sientes que hay patrones que se repiten en tu vida, puedo ayudarte a entender el POR QUÉ y el CÓMO cambiarlo.
 
@@ -197,16 +252,29 @@ Tu carta numerológica es el mapa para tu transformación.
 Hablamos? eloraculodiario.novaproflow.com
 
 #Numerologia #Transformación`;
-    await twitterRW.v2.reply(cta, firstTweet.data.id);
-  } catch (err) {
-    console.error('Error CTA final:', err.message);
-  }
+      await twitterRW.v2.reply(cta, firstTweet.data.id);
+      console.log('✅ CTA final publicado');
+    } catch (err) {
+      console.error('❌ Error CTA final:', err.message);
+    }
 
-  return firstTweet.data.id;
+    return firstTweet.data.id;
+  } catch (error) {
+    console.error('❌ Error en publicarHilo:', error.message);
+    throw error;
+  }
 }
 
 // === INTERACCIÓN ESTRATÉGICA ===
 async function interaccionSegura() {
+  const estado = estadoDiario.getEstado();
+  if (estado.interaccionesHechas) {
+    console.log('🔄 Interacciones ya realizadas hoy');
+    return;
+  }
+
+  console.log('🔍 Iniciando interacciones estratégicas...');
+  
   const queries = [
     'bloqueos económicos OR "dinero se escapa" -filter:retweets',
     'propósito de vida OR "qué hago con mi vida" -filter:retweets', 
@@ -219,17 +287,28 @@ async function interaccionSegura() {
   try {
     const searchResult = await twitterRW.v2.search(query, {
       max_results: 8,
-      'tweet.fields': 'public_metrics,author_id'
+      'tweet.fields': 'public_metrics,author_id,created_at'
     });
     
-    if (!searchResult.data) return;
+    if (!searchResult.data) {
+      console.log('🔍 No se encontraron tweets para interactuar');
+      return;
+    }
 
     let interacciones = 0;
     for (const tweet of searchResult.data) {
       if (interacciones >= config.interaccionesDiarias) break;
-      if (tweet.public_metrics.like_count > 2 && tweet.author_id !== MI_USER_ID) {
+      
+      // Verificar que el tweet no sea muy viejo (menos de 48 horas)
+      const tweetDate = new Date(tweet.created_at);
+      const now = new Date();
+      const hoursDiff = (now - tweetDate) / (1000 * 60 * 60);
+      
+      if (hoursDiff < 48 && tweet.public_metrics.like_count > 2 && tweet.author_id !== MI_USER_ID) {
         try {
           await twitterRW.v2.like(MI_USER_ID, tweet.id);
+          console.log(`❤️ Like dado al tweet ${tweet.id}`);
+          
           const respuestas = [
             `Justo estaba pensando en esto! En numerología, esto suele relacionarse con el número ${Math.floor(Math.random()*9)+1}. ¿Te suena?`,
             `Interesante reflexión. Desde la perspectiva numerológica, esto tiene mucho que ver con nuestros patrones kármicos.`,
@@ -238,45 +317,69 @@ async function interaccionSegura() {
           ];
           const respuesta = respuestas[Math.floor(Math.random()*respuestas.length)];
           await twitterRW.v2.reply(respuesta, tweet.id);
+          console.log(`💬 Respuesta enviada al tweet ${tweet.id}`);
+          
           interacciones++;
-          await new Promise(resolve => setTimeout(resolve, 120000));
-        } catch (err) {}
+          await new Promise(resolve => setTimeout(resolve, 120000)); // 2 minutos entre interacciones
+        } catch (err) {
+          console.error('❌ Error en interacción:', err.message);
+        }
       }
     }
-  } catch (err) {}
-}
-
-// === NUEVO: RT DEL POST FIJO (1 vez al día) ===
-async function retuitearPostFijo() {
-  const hoy = new Date().toISOString().split('T')[0];
-  const clave = `rt_${hoy}`;
-  if (localStorage.getItem(clave)) return;
-
-  try {
-    await twitterRW.v2.retweet(MI_USER_ID, POST_FIJO_ID);
-    localStorage.setItem(clave, 'true');
-    console.log('RT del post fijo hecho hoy');
+    
+    estado.interaccionesHechas = true;
+    console.log(`✅ ${interacciones} interacciones completadas`);
   } catch (err) {
-    if (err.code !== 327) console.error('Error RT:', err.message);
+    console.error('❌ Error en búsqueda:', err.message);
   }
 }
 
-// === NUEVO: PROCESAR REPLIES TIRADA GRATIS ===
-async function procesarReplies() {
-  console.log('Buscando replies al post fijo...');
+// === RT DEL POST FIJO ===
+async function retuitearPostFijo() {
+  const estado = estadoDiario.getEstado();
+  if (estado.rtHecho) {
+    console.log('🔄 RT ya realizado hoy');
+    return;
+  }
+
   try {
-    const replies = await twitterRW.v2.searchAll({
-      query: `in_reply_to_tweet_id:${POST_FIJO_ID} -from:${MI_USER_ID}`,
-      max_results: 20,
-      'tweet.fields': 'author_id'
+    await twitterRW.v2.retweet(MI_USER_ID, POST_FIJO_ID);
+    estado.rtHecho = true;
+    console.log('✅ RT del post fijo realizado');
+  } catch (err) {
+    if (err.code !== 327) { // 327 = ya retuiteado
+      console.error('❌ Error en RT:', err.message);
+    } else {
+      console.log('🔄 Post ya retuiteado anteriormente');
+      estado.rtHecho = true;
+    }
+  }
+}
+
+// === PROCESAR REPLIES TIRADA GRATIS ===
+async function procesarReplies() {
+  console.log('🔍 Buscando replies al post fijo...');
+  try {
+    const replies = await twitterRW.v2.search(`in_reply_to_tweet_id:${POST_FIJO_ID} -from:${MI_USER_ID}`, {
+      max_results: 15,
+      'tweet.fields': 'author_id,created_at,text'
     });
 
-    if (!replies.data) return;
+    if (!replies.data) {
+      console.log('📭 No hay replies nuevos');
+      return;
+    }
+
+    console.log(`📨 Encontrados ${replies.data.length} replies`);
 
     for (const reply of replies.data) {
       const texto = reply.text.toLowerCase();
       const match = texto.match(/(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4})\s*[\+\-\:]\s*([a-zA-Záéíóúñ]+)/);
-      if (!match) continue;
+      
+      if (!match) {
+        console.log('❌ Reply no válido:', texto.substring(0, 50));
+        continue;
+      }
 
       const fecha = match[1].replace(/-/g, '/');
       const temaRaw = match[2];
@@ -293,57 +396,108 @@ async function procesarReplies() {
       try {
         const user = await twitterRW.v2.user(reply.author_id);
         nombre = user.data.name.split(' ')[0];
-      } catch {}
+      } catch (err) {
+        console.log('⚠️ No se pudo obtener nombre del usuario');
+      }
 
       const link = `${TIRADA_URL}?nombre=${encodeURIComponent(nombre)}&fecha=${fecha}&tema=${tema}`;
       const respuesta = `¡Hola ${nombre}! Tu tirada GRATIS está lista\n\n${link}\n\n+ ritual exprés en <10 seg\n\n#TiradaGratis`;
 
       try {
         await twitterRW.v2.reply(respuesta, reply.id);
-        console.log(`Respondido: ${fecha} + ${tema}`);
-        await new Promise(r => setTimeout(r, 3000));
+        console.log(`✅ Respondido: ${fecha} + ${tema} para ${nombre}`);
+        await new Promise(r => setTimeout(r, 5000)); // 5 segundos entre respuestas
       } catch (err) {
-        console.error('Error reply:', err.message);
+        console.error('❌ Error respondiendo reply:', err.message);
       }
     }
   } catch (err) {
-    console.error('Error replies:', err);
+    console.error('❌ Error buscando replies:', err.message);
   }
 }
 
-// === MAIN: 4 HILOS DIARIOS (solo 1 vez al día) ===
+// === HILOS DIARIOS ===
 async function main() {
-  const hoy = new Date().toISOString().split('T')[0];
-  if (localStorage.getItem(`hilos_${hoy}`)) return;
-
-  for (let i = 0; i < config.publicacionesPorDia; i++) {
-    const prompt = obtenerPrompt(i);
-    const contenido = await generarContenido(prompt);
-    await publicarHilo(contenido);
-    if (i < 3) await new Promise(r => setTimeout(r, 3 * 60 * 60 * 1000)); // 3h entre hilos
+  const estado = estadoDiario.getEstado();
+  if (estado.hilosHechos) {
+    console.log('🔄 Hilos ya publicados hoy');
+    return;
   }
-  localStorage.setItem(`hilos_${hoy}`, 'true');
+
+  console.log('🚀 Iniciando publicación de hilos diarios...');
+  
+  try {
+    for (let i = 0; i < config.publicacionesPorDia; i++) {
+      console.log(`📝 Generando hilo ${i + 1} de ${config.publicacionesPorDia}`);
+      
+      const prompt = obtenerPrompt(i);
+      const contenido = await generarContenido(prompt);
+      await publicarHilo(contenido);
+      
+      if (i < config.publicacionesPorDia - 1) {
+        console.log(`⏰ Esperando 3 horas para el próximo hilo...`);
+        await new Promise(r => setTimeout(r, 3 * 60 * 60 * 1000));
+      }
+    }
+    
+    estado.hilosHechos = true;
+    console.log('✅ Todos los hilos publicados exitosamente');
+  } catch (error) {
+    console.error('❌ Error en publicación de hilos:', error.message);
+  }
 }
 
-// === BUCLE PRINCIPAL (ejecuta cada hora) ===
+// === BUCLE PRINCIPAL ===
 async function cicloCompleto() {
   const hora = new Date().getHours();
-  console.log(`\nCICLO - ${new Date().toLocaleString('es-ES')} - Hora: ${hora}`);
+  const minuto = new Date().getMinutes();
+  
+  console.log(`\n🔄 CICLO - ${new Date().toLocaleString('es-ES')} - Hora: ${hora}:${minuto}`);
+  console.log(`📅 Día: ${hoy}`);
 
-  // 1. RT del post fijo (1 vez al día)
-  await retuitearPostFijo();
+  try {
+    // 1. RT del post fijo (1 vez al día)
+    await retuitearPostFijo();
 
-  // 2. Procesar replies (cada hora)
-  await procesarReplies();
+    // 2. Procesar replies (cada hora)
+    await procesarReplies();
 
-  // 3. Hilos diarios (solo a las 9:00)
-  if (hora === 9) await main();
+    // 3. Hilos diarios (solo a las 9:00)
+    if (hora === 9) {
+      await main();
+    }
 
-  // 4. Interacciones (solo a las 12:00)
-  if (hora === 12) await interaccionSegura();
+    // 4. Interacciones (solo a las 12:00 y 16:00)
+    if (hora === 12 || hora === 16) {
+      await interaccionSegura();
+    }
 
+    console.log('✅ Ciclo completado exitosamente');
+  } catch (error) {
+    console.error('❌ Error en ciclo completo:', error.message);
+  }
+
+  // Esperar 1 hora para el próximo ciclo
+  console.log('⏰ Esperando 1 hora para el próximo ciclo...\n');
   setTimeout(cicloCompleto, 60 * 60 * 1000);
 }
 
-// === INICIAR ===
-cicloCompleto();
+// === MANEJADOR DE ERRORES NO CAPTURADOS ===
+process.on('unhandledRejection', (error) => {
+  console.error('❌ Error no capturado:', error);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('❌ Excepción no capturada:', error);
+});
+
+// === INICIAR BOT ===
+console.log('🤖 Iniciando Bot de Numerología...');
+console.log('📍 User ID:', MI_USER_ID);
+console.log('📍 Post Fijo:', POST_FIJO_ID);
+console.log('🌐 Día actual:', hoy);
+
+cicloCompleto().catch(error => {
+  console.error('❌ Error fatal al iniciar bot:', error);
+  process.exit(1);
+});
